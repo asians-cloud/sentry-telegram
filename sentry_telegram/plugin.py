@@ -223,7 +223,7 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
 
         return {
             'text': text,
-            'parse_mode': 'Markdown',
+            #  'parse_mode': 'Markdown',
         }
 
     def build_url(self):
