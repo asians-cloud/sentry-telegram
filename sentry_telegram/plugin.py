@@ -115,7 +115,7 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
                 }""",
                 'validators': [],
                 'required': True,
-                'default': {
+                'default': """{
                     "uat": {
                         "api_origin": "",
                         "api_token": "",
@@ -134,7 +134,7 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
                         "receiver": "",
                         "message_template": "",
                     },
-                } 
+                } """
             }
         ]
         #  return [
