@@ -1,5 +1,5 @@
 # coding: utf-8
-import logging
+import logging, json
 from collections import defaultdict
 
 from django import forms
@@ -235,6 +235,7 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
     def get_tg_config(self, project, event):
         event_tags = self.extract_tags(event)
         tg_configs = self.get_option('config', project)
+        tg_configs = json.loads(tg_configs)
         environment = event_tags.get('environment', 'deployment')
         tg_config = tg_configs[environment]
         if tg_config is None:
