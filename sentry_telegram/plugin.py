@@ -89,43 +89,93 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
     def get_config(self, project, **kwargs):
         return [
             {
-                'name': 'api_origin',
-                'label': 'Telegram API origin',
-                'type': 'text',
-                'placeholder': 'https://api.telegram.org',
-                'validators': [],
-                'required': True,
-                'default': 'https://api.telegram.org'
-            },
-            {
-                'name': 'api_token',
-                'label': 'BotAPI token',
-                'type': 'text',
+                'name': 'config',
+                'label': 'Configuration for Telegram Notification',
+                'type': 'textarea',
                 'help': 'Read more: https://core.telegram.org/bots/api#authorizing-your-bot',
-                'placeholder': '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11',
+                'placeholder': """{
+                    "uat": {
+                        "api_origin": "",
+                        "api_token": "",
+                        "receiver": "",
+                        "message_template": "",
+                    },
+                    "staging": {
+                        "api_origin": "",
+                        "api_token": "",
+                        "receiver": "",
+                        "message_template": "",
+                    },
+                    "prod": {
+                        "api_origin": "",
+                        "api_token": "",
+                        "receiver": "",
+                        "message_template": "",
+                    },
+                }"""
                 'validators': [],
                 'required': True,
-            },
-            {
-                'name': 'receivers',
-                'label': 'Receivers',
-                'type': 'textarea',
-                'help': 'Enter receivers IDs (one per line). Personal messages, group chats and channels also available. '
-                        'If you want to specify a thread ID, separate it with "/" (e.g. "12345/12").',
-                'validators': [],
-                'required': True,
-            },
-            {
-                'name': 'message_template',
-                'label': 'Message Template',
-                'type': 'textarea',
-                'help': 'Set in standard python\'s {}-format convention, available names are: '
-                        '{project_name}, {url}, {title}, {message}, {tag[%your_tag%]}. Undefined tags will be shown as [NA]',
-                'validators': [],
-                'required': True,
-                'default': '*[Sentry]* {project_name} {tag[level]}: *{title}*\n```{message}```\n{url}'
-            },
+                'default': {
+                    "uat": {
+                        "api_origin": "",
+                        "api_token": "",
+                        "receiver": "",
+                        "message_template": "",
+                    },
+                    "staging": {
+                        "api_origin": "",
+                        "api_token": "",
+                        "receiver": "",
+                        "message_template": "",
+                    },
+                    "prod": {
+                        "api_origin": "",
+                        "api_token": "",
+                        "receiver": "",
+                        "message_template": "",
+                    },
+                } 
+            }
         ]
+        #  return [
+            #  {
+                #  'name': 'api_origin',
+                #  'label': 'Telegram API origin',
+                #  'type': 'text',
+                #  'placeholder': 'https://api.telegram.org',
+                #  'validators': [],
+                #  'required': True,
+                #  'default': 'https://api.telegram.org'
+            #  },
+            #  {
+                #  'name': 'api_token',
+                #  'label': 'BotAPI token',
+                #  'type': 'text',
+                #  'help': 'Read more: https://core.telegram.org/bots/api#authorizing-your-bot',
+                #  'placeholder': '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11',
+                #  'validators': [],
+                #  'required': True,
+            #  },
+            #  {
+                #  'name': 'receivers',
+                #  'label': 'Receivers',
+                #  'type': 'textarea',
+                #  'help': 'Enter receivers IDs (one per line). Personal messages, group chats and channels also available. '
+                        #  'If you want to specify a thread ID, separate it with "/" (e.g. "12345/12").',
+                #  'validators': [],
+                #  'required': True,
+            #  },
+            #  {
+                #  'name': 'message_template',
+                #  'label': 'Message Template',
+                #  'type': 'textarea',
+                #  'help': 'Set in standard python\'s {}-format convention, available names are: '
+                        #  '{project_name}, {url}, {title}, {message}, {tag[%your_tag%]}. Undefined tags will be shown as [NA]',
+                #  'validators': [],
+                #  'required': True,
+                #  'default': '*[Sentry]* {project_name} {tag[level]}: *{title}*\n```{message}```\n{url}'
+            #  },
+        #  ]
 
     def compile_message_text(self, message_template: str, message_params: dict, event_message: str) -> str:
         """
