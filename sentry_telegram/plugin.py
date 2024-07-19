@@ -78,6 +78,7 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
 
     conf_key = 'sentry_telegram'
     conf_title = title
+    tg_config = None
 
     project_conf_form = TelegramNotificationsOptionsForm
 
@@ -200,9 +201,13 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
 
         return message_text
 
-    def build_message(self, group, event):
+    def extract_tags(self, event):
         event_tags = defaultdict(lambda: '[NA]')
         event_tags.update({k: v for k, v in event.tags})
+        return event_tags
+
+    def build_message(self, group, event):
+        event_tags = self.extract_tags(event) 
 
         message_params = {
             'title': event.title[:EVENT_TITLE_MAX_LENGTH],
@@ -211,7 +216,7 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
             'url': group.get_absolute_url(),
         }
         text = self.compile_message_text(
-            self.get_message_template(group.project),
+            self.get_message_template(),
             message_params,
             event.message,
         )
@@ -221,22 +226,23 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
             'parse_mode': 'Markdown',
         }
 
-    def build_url(self, project):
-        return '%s/bot%s/sendMessage' % (self.get_option('api_origin', project), self.get_option('api_token', project))
+    def build_url(self):
+        return '%s/bot%s/sendMessage' % (self.tg_config['api_origin'], self.tg_config['api_token'])
 
-    def get_message_template(self, project):
-        return self.get_option('message_template', project)
+    def get_message_template(self):
+        return self.tg_config['message_template']
 
-    def get_receivers(self, project) -> list[list[str, str]]:
-        receivers = self.get_option('receivers', project).strip()
-        if not receivers:
-            return []
-        return list([line.strip().split('/', maxsplit=1) for line in receivers.splitlines() if line.strip()])
+    def get_tg_config(self, project, event):
+        event_tags = self.extract_tags(event)
+        tg_configs = self.get_option('config', project)
+        environment = event_tags.get('environment', 'deployment')
+        tg_config = tg_configs[environment]
+        if tg_config is None:
+            self.logger.debug(f'TG config for environment {environment} is empty')
+        return tg_config
 
     def send_message(self, url, payload, receiver: list[str, str]):
-        payload['chat_id'] = receiver[0]
-        if len(receiver) > 1:
-            payload['message_thread_id'] = receiver[1]
+        payload['chat_id'] = receiver
         self.logger.debug('Sending message to %s' % receiver)
         response = safe_urlopen(
             method='POST',
@@ -249,11 +255,30 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
 
     def notify_users(self, group, event, fail_silently=False, **kwargs):
         self.logger.debug('Received notification for event: %s' % event)
-        receivers = self.get_receivers(group.project)
-        self.logger.debug('for receivers: %s' % ', '.join(['/'.join(item) for item in receivers] or ()))
+        tg_config = self.get_tg_config(group.project, event)
+        if tg_config is None:
+            return
+        api_origin = tg_config.get('api_origin', None)
+        api_token = tg_config.get('api_token', None)
+        receiver = tg_config.get('receiver', None)
+        message_template = tg_config.get('message_template', None)
+
+        if api_origin is None or api_origin == "":
+            raise ValueError('API Origin is empty')
+
+        if api_token is None or api_token == "":
+            raise ValueError('API Token is empty')
+
+        if receiver is None or receiver == "":
+            raise ValueError('Receiver is empty')
+
+        if message_template is None or message_template == "":
+            raise ValueError('Message Template is empty')
+
+        self.tg_config = tg_config
+
         payload = self.build_message(group, event)
         self.logger.debug('Built payload: %s' % payload)
-        url = self.build_url(group.project)
+        url = self.build_url()
         self.logger.debug('Built url: %s' % url)
-        for receiver in receivers:
-            safe_execute(self.send_message, url, payload, receiver)
+        safe_execute(self.send_message, url, payload, receiver)
