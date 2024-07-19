@@ -112,7 +112,7 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
                         "receiver": "",
                         "message_template": "",
                     },
-                }"""
+                }""",
                 'validators': [],
                 'required': True,
                 'default': {
