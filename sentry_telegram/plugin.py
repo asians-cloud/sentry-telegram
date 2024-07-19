@@ -17,29 +17,51 @@ EVENT_TITLE_MAX_LENGTH = 500
 
 
 class TelegramNotificationsOptionsForm(notify.NotificationConfigurationForm):
-    api_origin = forms.CharField(
-        label=_('Telegram API origin'),
-        widget=forms.TextInput(attrs={'placeholder': 'https://api.telegram.org'}),
-        initial='https://api.telegram.org'
+    config = forms.JSONField(
+        initial={
+            "uat": {
+                "api_origin": "https://api.telegram.org",
+                "api_token": "",
+                "receiver": "",
+                "message_template": "*[Sentry]* {project_name} {tag[level]}: *{title}*\n```\n{message}```\n{url}"
+            },
+            "staging": {
+                "api_origin": "https://api.telegram.org",
+                "api_token": "",
+                "receiver": "",
+                "message_template": "*[Sentry]* {project_name} {tag[level]}: *{title}*\n```\n{message}```\n{url}"
+            },
+            "prod": {
+                "api_origin": "https://api.telegram.org",
+                "api_token": "",
+                "receiver": "",
+                "message_template": "*[Sentry]* {project_name} {tag[level]}: *{title}*\n```\n{message}```\n{url}"
+            }
+        }
     )
-    api_token = forms.CharField(
-        label=_('BotAPI token'),
-        widget=forms.TextInput(attrs={'placeholder': '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11'}),
-        help_text=_('Read more: https://core.telegram.org/bots/api#authorizing-your-bot'),
-    )
-    receivers = forms.CharField(
-        label=_('Receivers'),
-        widget=forms.Textarea(attrs={'class': 'span6'}),
-        help_text=_('Enter receivers IDs (one per line). Personal messages, group chats and channels also available. '
-                    'If you want to specify a thread ID, separate it with "/" (e.g. "12345/12").'),
-    )
-    message_template = forms.CharField(
-        label=_('Message template'),
-        widget=forms.Textarea(attrs={'class': 'span4'}),
-        help_text=_('Set in standard python\'s {}-format convention, available names are: '
-                    '{project_name}, {url}, {title}, {message}, {tag[%your_tag%]}'),
-        initial='*[Sentry]* {project_name} {tag[level]}: *{title}*\n```\n{message}```\n{url}'
-    )
+    #  api_origin = forms.CharField(
+        #  label=_('Telegram API origin'),
+        #  widget=forms.TextInput(attrs={'placeholder': 'https://api.telegram.org'}),
+        #  initial='https://api.telegram.org'
+    #  )
+    #  api_token = forms.CharField(
+        #  label=_('BotAPI token'),
+        #  widget=forms.TextInput(attrs={'placeholder': '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11'}),
+        #  help_text=_('Read more: https://core.telegram.org/bots/api#authorizing-your-bot'),
+    #  )
+    #  receivers = forms.CharField(
+        #  label=_('Receivers'),
+        #  widget=forms.Textarea(attrs={'class': 'span6'}),
+        #  help_text=_('Enter receivers IDs (one per line). Personal messages, group chats and channels also available. '
+                    #  'If you want to specify a thread ID, separate it with "/" (e.g. "12345/12").'),
+    #  )
+    #  message_template = forms.CharField(
+        #  label=_('Message template'),
+        #  widget=forms.Textarea(attrs={'class': 'span4'}),
+        #  help_text=_('Set in standard python\'s {}-format convention, available names are: '
+                    #  '{project_name}, {url}, {title}, {message}, {tag[%your_tag%]}'),
+        #  initial='*[Sentry]* {project_name} {tag[level]}: *{title}*\n```\n{message}```\n{url}'
+    #  )
 
 
 class TelegramNotificationsPlugin(notify.NotificationPlugin):
