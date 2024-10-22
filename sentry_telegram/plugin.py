@@ -85,7 +85,7 @@ class TelegramNotificationsPlugin(notify.NotificationPlugin):
     logger = logging.getLogger('sentry.plugins.sentry_telegram')
 
     def is_configured(self, project, **kwargs):
-        return bool(self.get_option('config', project) 
+        return bool(self.get_option('config', project))
 
     def get_config(self, project, **kwargs):
         return [
